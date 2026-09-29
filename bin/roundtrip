@@ -1,0 +1,5 @@
+#!/bin/sh
+# Used by transit-format's verify harness.
+
+cd `dirname $0`/..
+exec Rscript --vanilla bin/read-write "$@"

@@ -1,0 +1,22 @@
+#!/usr/bin/env Rscript
+# Reads each transit value from stdin as it arrives and writes it back to
+# stdout. Loads the package from source, so it runs without installing it.
+#
+# usage: read-write [json|json-verbose|msgpack]
+
+args <- commandArgs(trailingOnly = TRUE)
+script <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE))
+root <- normalizePath(file.path(dirname(script), ".."))
+
+transit <- new.env()
+for (f in list.files(file.path(root, "R"), pattern = "[.]R$", full.names = TRUE)) sys.source(f, envir = transit)
+for (name in ls(transit, pattern = "^[^.]+[.]transit_")) {
+  generic <- sub("[.]transit_.*$", "", name)
+  registerS3method(generic, sub("^.*?[.](transit_)", "\\1", name), get(name, envir = transit), envir = transit)
+}
+
+format <- if (length(args) > 0) args[1] else "json"
+input <- file("stdin", "rb")
+output <- file("/dev/stdout", "wb", raw = TRUE)
+
+transit$read_transit_stream(input, function(value) transit$write_transit(value, output, format), format)

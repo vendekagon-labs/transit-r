@@ -21,7 +21,7 @@ test_that("ints beyond 2^53 are written as strings in JSON", {
 test_that("doubles are written so they read back exactly, and as floats", {
   xs <- list(0.1, 1/3, 2, -0, 1e16, 6.626e-34, 4e11, 1.5e-5, .Machine$double.xmax, 2^-1074)
   out <- to_transit(xs)
-  expect_identical(out, "[0.1,0.33333333333333331,2.0,-0.0,1e+16,6.626e-34,400000000000.0,1.5e-05,1.7976931348623157e+308,4.94065645841247e-324]")
+  expect_identical(out, "[0.1,0.3333333333333333,2.0,-0.0,1e+16,6.626e-34,400000000000.0,1.5e-05,1.7976931348623157e+308,4.94065645841247e-324]")
   expect_identical(from_transit(out), xs)
 })
 

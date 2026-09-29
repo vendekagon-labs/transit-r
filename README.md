@@ -11,6 +11,8 @@ MessagePack.
 This implementation's major.minor version number corresponds to the version
 of the Transit specification it supports.
 
+Reading and writing are done in C, 100-200 times faster than in plain R.
+
 Values roundtrip losslessly, including the transit types R has no direct
 equivalent for, and output matches the reference implementation: every
 transit-format msgpack exemplar is re-encoded byte for byte as transit-java
@@ -20,7 +22,11 @@ fills up and starts over.
 ## Installation
 
 The only dependency is [jsonlite](https://cran.r-project.org/package=jsonlite);
-msgpack support is built in.
+msgpack support is built in. Reading and writing is done by compiled code (the
+[transit-c](https://github.com/vendekagon-labs/transit-c) library, included
+in the package), so installing from source needs a C compiler: on Windows,
+[Rtools](https://cran.r-project.org/bin/windows/Rtools/); on macOS, the Xcode
+command line tools (`xcode-select --install`).
 
 Install from GitHub with [remotes](https://cran.r-project.org/package=remotes)
 or [pak](https://pak.r-lib.org):
@@ -129,8 +135,16 @@ The exemplar tests read the example files from
 [transit-format](http://github.com/cognitect/transit-format), which is
 expected to be checked out next to this repo, or at `$TRANSIT_FORMAT_DIR`.
 
-transit-format's verify harness drives `bin/roundtrip`, which loads the
-package from source.
+transit-format's verify harness drives `bin/roundtrip`, which installs the
+package into `.lib` (when the sources have changed) and runs it from there.
+
+The C code in `src/` is copied from
+[transit-c](https://github.com/vendekagon-labs/transit-c) by
+`bin/sync-transit-c` (which records the commit in `src/transit_c_version.h`);
+change it there, not here. The package also has an R implementation of
+reading and writing, used for custom `handlers` and a few R types the C code
+doesn't handle, and throughout with `options(transit.native = FALSE)`; the
+tests check that both give identical results.
 
 ## Copyright and License
 

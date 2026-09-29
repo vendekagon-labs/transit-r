@@ -42,6 +42,11 @@ Writing takes those, and ordinary R values: `NULL` and `NA` are nil,
 length one vectors are scalars, other atomic vectors and unnamed lists are
 arrays, named lists and named vectors are maps with string keys, `Date`s
 and `POSIXct`s are times.
+
+Reading and writing use the package's compiled code (the
+transit-c library), except when `handlers` are given, or for values it
+doesn't handle (such as factors), which use the R implementation.
+`options(transit.native = FALSE)` uses the R implementation throughout.
 }
 \examples{
 to_transit(list(1L, "two", transit_keyword("three")))

@@ -2,3 +2,9 @@
 ^README\.md$
 ^\.git$
 ^LICENSE$
+^src/.*\.o$
+^src/.*\.so$
+^\.lib$
+^\.github$
+^src/.*\.dll$
+^transit-format$

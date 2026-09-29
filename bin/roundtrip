@@ -1,5 +1,11 @@
 #!/bin/sh
-# Used by transit-format's verify harness.
+# Used by transit-format's verify harness. Installs the package into .lib
+# when the sources are newer (install output goes to stderr: stdout carries
+# the data).
 
 cd `dirname $0`/..
-exec Rscript --vanilla bin/read-write "$@"
+if [ ! -f .lib/transit/DESCRIPTION ] || [ -n "`find DESCRIPTION NAMESPACE R src -newer .lib/transit/DESCRIPTION -not -name '*.o' -not -name '*.so' 2>/dev/null | head -1`" ]; then
+  mkdir -p .lib
+  R CMD INSTALL --no-docs --no-multiarch -l .lib . 1>&2 || exit 1
+fi
+R_LIBS=.lib exec Rscript --vanilla bin/read-write "$@"

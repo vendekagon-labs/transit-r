@@ -26,12 +26,22 @@
 #'   tag, each turning a tag's representation into a value.
 #' @return `to_transit()`: a string, or a raw vector for msgpack.
 #'   `from_transit()`: the value.
+#' @details Reading and writing use the package's compiled code (the
+#' transit-c library), except when `handlers` are given, or for values it
+#' doesn't handle (such as factors), which use the R implementation.
+#' `options(transit.native = FALSE)` uses the R implementation throughout.
 #' @examples
 #' to_transit(list(1L, "two", transit_keyword("three")))
 #' from_transit("[\"~#set\",[1,2]]")
+#' @useDynLib transit, .registration = TRUE
 #' @export
 to_transit <- function(x, format = "json", handlers = list()) {
-  st <- new_writer(check_format(format), handlers)
+  format <- check_format(format)
+  if (use_native(handlers)) {
+    out <- .Call(C_to_transit, x, FORMAT_CODES[[format]])
+    if (!is.null(out)) return(out)
+  }
+  st <- new_writer(format, handlers)
   out <- marshal_top(x, st)
   if (st$msgpack) out else enc2utf8(out)
 }
@@ -40,6 +50,10 @@ to_transit <- function(x, format = "json", handlers = list()) {
 #' @export
 from_transit <- function(x, format = "json", handlers = list()) {
   format <- check_format(format)
+  if (use_native(handlers)) {
+    if (is.character(x)) x <- enc2utf8(x)
+    return(.Call(C_from_transit, x, FORMAT_CODES[[format]]))
+  }
   if (format == "msgpack") {
     r <- mp_reader(bytes = x)
     return(decode_value(mp_unpack(r), handlers))
@@ -116,16 +130,29 @@ read_values <- function(con, format, handlers, callback, max = Inf) {
   if (format == "msgpack") {
     r <- mp_reader(con = con)
     while (n < max && !mp_at_end(r)) {
-      callback(decode_value(mp_unpack(r), handlers))
+      if (use_native(handlers)) {
+        start <- r$pos
+        mp_skip(r)
+        callback(from_transit(r$buf[start:(r$pos - 1L)], format))
+      } else {
+        callback(decode_value(mp_unpack(r), handlers))
+      }
       n <- n + 1L
     }
   } else {
     while (n < max) {
       txt <- json_read_value(con)
       if (is.null(txt)) break
-      callback(decode_value(json_parse(txt), handlers))
+      callback(from_transit(txt, format, handlers))
       n <- n + 1L
     }
   }
   n
 }
+
+FORMAT_CODES <- c(json = 0L, json_verbose = 1L, msgpack = 2L)
+
+use_native <- function(handlers) length(handlers) == 0 && !isFALSE(getOption("transit.native"))
+
+# The transit-c commit the compiled code was built from.
+transit_c_version <- function() .Call(C_transit_c_version)

@@ -29,6 +29,7 @@ is_plain_string <- function(x) is.character(x) && length(x) == 1 && is.null(attr
 
 format_double <- function(x) {
   s <- sprintf("%.15g", x)
+  if (parse_doubles(s) != x) s <- sprintf("%.16g", x)
   if (parse_doubles(s) != x) s <- sprintf("%.17g", x)
   if (!grepl("[.e]", s)) s <- paste0(s, ".0")
   s

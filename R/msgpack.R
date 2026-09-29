@@ -155,3 +155,23 @@ mp_unpack <- function(r) {
     "193" = stop("invalid msgpack data (0xc1)", call. = FALSE),
     stop(sprintf("msgpack extension types aren't used by transit (type byte 0x%02x)", b), call. = FALSE))
 }
+
+# Reads past one msgpack value without decoding it.
+mp_skip <- function(r) {
+  b <- u8(r)
+  if (b <= 0x7f || b >= 0xe0) return(invisible())
+  if (b <= 0x8f) { for (i in seq_len(2 * (b - 0x80))) mp_skip(r); return(invisible()) }
+  if (b <= 0x9f) { for (i in seq_len(b - 0x90)) mp_skip(r); return(invisible()) }
+  if (b <= 0xbf) { mp_take(r, b - 0xa0); return(invisible()) }
+  fixed <- c("192" = 0, "194" = 0, "195" = 0, "202" = 4, "203" = 8, "204" = 1, "205" = 2, "206" = 4, "207" = 8,
+             "208" = 1, "209" = 2, "210" = 4, "211" = 8)
+  key <- as.character(b)
+  if (key %in% names(fixed)) { mp_take(r, fixed[[key]]); return(invisible()) }
+  n <- switch(key, "196" = , "217" = u8(r), "197" = , "218" = , "220" = , "222" = u16(r),
+              "198" = , "219" = , "221" = , "223" = u32(r),
+              stop(sprintf("msgpack extension types aren't used by transit (type byte 0x%02x)", b), call. = FALSE))
+  if (b %in% c(0xdc, 0xdd)) for (i in seq_len(n)) mp_skip(r)
+  else if (b %in% c(0xde, 0xdf)) for (i in seq_len(2 * n)) mp_skip(r)
+  else mp_take(r, n)
+  invisible()
+}

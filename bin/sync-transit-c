@@ -1,0 +1,21 @@
+#!/bin/sh
+# Copies transit-c's sources into src/ (the package compiles them itself)
+# and records which commit they came from.
+#
+# usage: bin/sync-transit-c [path to a transit-c checkout]   (default ../transit-format-c)
+
+set -e
+cd `dirname $0`/..
+C=${1:-../transit-format-c}
+if [ -n "$(git -C "$C" status --porcelain -- include src)" ]; then
+  echo "$C has uncommitted changes to its sources" >&2
+  exit 1
+fi
+cp "$C"/include/transit.h "$C"/src/*.c "$C"/src/*.h src/
+COMMIT=`git -C "$C" rev-parse --short HEAD`
+cat > src/transit_c_version.h <<END
+/* The transit-c commit the transit sources in this directory were copied
+ * from, by bin/sync-transit-c. */
+#define TRANSIT_C_COMMIT "$COMMIT"
+END
+echo "copied transit-c $COMMIT into src/"

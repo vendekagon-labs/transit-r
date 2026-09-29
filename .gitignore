@@ -3,3 +3,7 @@
 .RData
 *.tar.gz
 transit.Rcheck/
+src/*.o
+src/*.so
+.lib/
+src/*.dll

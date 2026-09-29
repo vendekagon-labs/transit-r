@@ -2,7 +2,9 @@ Package: transit
 Type: Package
 Title: Read and Write Transit Data
 Version: 0.8.0
-Authors@R: person("Ben", "Kamphaus", email = "ben@vendekagonlabs.com", role = c("aut", "cre"))
+Authors@R: c(
+    person("Ben", "Kamphaus", email = "ben@vendekagonlabs.com", role = c("aut", "cre")),
+    person("Vendekagon Labs LLC", role = "cph"))
 Description: Reads and writes Transit, a format for conveying values between
     applications written in different programming languages, in all three of
     its encodings: JSON, JSON-verbose and MessagePack. Values roundtrip

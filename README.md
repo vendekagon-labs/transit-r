@@ -125,7 +125,7 @@ package from source.
 
 ## Copyright and License
 
-Copyright © 2026 Ben Kamphaus
+Copyright © 2026 Vendekagon Labs LLC
 
 Based on the Java, Python and Julia implementations: Copyright © 2014
 Cognitect, and Copyright © 2016 Russ Olsen, Ben Kamphaus.

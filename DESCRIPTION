@@ -11,7 +11,8 @@ Description: Reads and writes Transit, a format for conveying values between
     losslessly, including types R has no direct equivalent for (keywords,
     sets, 64 bit integers, maps with non-string keys).
 License: Apache License (== 2.0)
-URL: https://github.com/cognitect/transit-format
+URL: https://github.com/vendekagon-labs/transit-r, https://github.com/cognitect/transit-format
+BugReports: https://github.com/vendekagon-labs/transit-r/issues
 Encoding: UTF-8
 Depends: R (>= 4.1.0)
 Imports: jsonlite, stats

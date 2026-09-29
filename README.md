@@ -22,10 +22,19 @@ fills up and starts over.
 The only dependency is [jsonlite](https://cran.r-project.org/package=jsonlite);
 msgpack support is built in.
 
+Install from GitHub with [remotes](https://cran.r-project.org/package=remotes)
+or [pak](https://pak.r-lib.org):
+
 ```r
-# from a checkout
-install.packages("path/to/transit-r", repos = NULL, type = "source")
+remotes::install_github("vendekagon-labs/transit-r")
+# or
+pak::pak("vendekagon-labs/transit-r")
 ```
+
+To install over SSH, use
+`remotes::install_git("git@github.com:vendekagon-labs/transit-r.git")`; add
+`ref = "<tag or commit>"` (or `@<ref>` for `install_github()` and pak) to pin a
+version. From a checkout: `install.packages("path/to/transit-r", repos = NULL, type = "source")`.
 
 Requires R 4.1 or later (tested with R 4.6).
 

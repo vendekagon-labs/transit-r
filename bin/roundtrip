@@ -6,6 +6,6 @@
 cd `dirname $0`/..
 if [ ! -f .lib/transit/DESCRIPTION ] || [ -n "`find DESCRIPTION NAMESPACE R src -newer .lib/transit/DESCRIPTION -not -name '*.o' -not -name '*.so' 2>/dev/null | head -1`" ]; then
   mkdir -p .lib
-  R CMD INSTALL --no-docs --no-multiarch -l .lib . 1>&2 || exit 1
+  R CMD INSTALL --preclean --no-docs --no-multiarch -l .lib . 1>&2 || exit 1
 fi
 R_LIBS=.lib exec Rscript --vanilla bin/read-write "$@"
